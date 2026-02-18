@@ -18,15 +18,27 @@ def analyze_performance(
     memory_stats: Dict[str, float],
     disk_stats: Dict[str, float],
     disk_threshold: float = 500.0,
+    memory_threshold: float = 0.85,  # 85% memory usage
 ) -> AnalysisResult:
+    """
+    Analyze system performance metrics to identify bottlenecks.
+    
+    Works with both simulated and real system metrics.
+    For real metrics, page_fault_rate represents memory usage percentage.
+    """
     page_fault_rate = memory_stats.get("page_fault_rate", 0.0)
     fifo_faults = memory_stats.get("FIFO", 0.0)
     lru_faults = memory_stats.get("LRU", 0.0)
     disk_seek_time = disk_stats.get("FCFS", 0.0)
+    
+    # Check for real-time metrics indicators
+    memory_percent = memory_stats.get("memory_percent", page_fault_rate * 100)
+    disk_io_count = disk_stats.get("request_count", 0.0)
 
-    if page_fault_rate > 0.4:
+    # Analyze bottlenecks with priority order
+    if memory_percent > memory_threshold * 100 or page_fault_rate > memory_threshold:
         bottleneck = "RAM Bottleneck"
-    elif disk_seek_time > disk_threshold:
+    elif disk_seek_time > disk_threshold or disk_io_count > 100:
         bottleneck = "Disk I/O Bottleneck"
     elif lru_faults and fifo_faults > lru_faults * 1.25:
         bottleneck = "Inefficient Page Replacement"
@@ -43,5 +55,6 @@ def analyze_performance(
             "optimal_faults": memory_stats.get("Optimal", 0.0),
             "disk_sstf": disk_stats.get("SSTF", 0.0),
             "request_count": disk_stats.get("request_count", 0.0),
+            "memory_percent": memory_percent,
         },
     )

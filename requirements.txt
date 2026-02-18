@@ -1,0 +1,14 @@
+# OS Performance Bottleneck Analyzer - Requirements
+# Install with: pip install -r requirements.txt
+
+# Real-time system monitoring
+psutil>=5.9.0
+
+# GUI framework (usually comes with Python)
+# tkinter - built-in
+
+# Data visualization
+matplotlib>=3.5.0
+
+# Audio/Speech (optional - for audio reports)
+pyttsx3>=2.90
